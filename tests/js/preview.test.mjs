@@ -71,6 +71,7 @@ test('Markdown-Inhalte bleiben beim Einsetzen unveraendert', { skip: !hasBundle 
     assert.equal(payload.text, original);
     assert.equal(payload.kind, 'document');
     assert.equal(payload.settings.theme, 'light');
+    assert.equal(payload.settings.blockRemoteImages, true);
   } finally {
     rmSync(out, { recursive: true, force: true });
   }

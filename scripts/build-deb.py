@@ -129,7 +129,7 @@ def build_tree(version: str) -> Path:
 
     man_dir = STAGE / "usr" / "share" / "man" / "man1"
     man_dir.mkdir(parents=True, exist_ok=True)
-    write_gzip(CONTROL_DIR / f"{PKG}.1", man_dir / f"{PKG}.1.gz", replacements={"1.0.0": version})
+    write_gzip(CONTROL_DIR / f"{PKG}.1", man_dir / f"{PKG}.1.gz", replacements={"@VERSION@": version})
 
     # --- Dokumentation ------------------------------------------------------
     doc = STAGE / "usr" / "share" / "doc" / PKG

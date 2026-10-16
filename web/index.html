@@ -3,8 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Alles bleibt lokal: keine Skripte/Verbindungen von aussen. Der Viewer
-         aktualisiert img-src, sobald "externe Bilder blockieren" aktiv ist. -->
+    <!-- http(s) ist für Bildanfragen zugelassen, damit ein bewusst angeklicktes
+         Bild laden kann. Der Viewer ersetzt Remote-Bildquellen standardmaessig
+         vor dem Einfügen ins DOM durch einen lokalen Platzhalter. -->
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' file: data: https: http:; font-src 'self' file: data:; media-src 'self' file: data:; connect-src 'none'; form-action 'none'; base-uri 'self'"

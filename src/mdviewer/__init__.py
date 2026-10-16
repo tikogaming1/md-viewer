@@ -10,7 +10,7 @@ Die App besteht aus zwei Teilen:
 
 __all__ = ["__version__", "APP_ID", "APP_NAME", "APP_SLUG"]
 
-__version__ = "1.1.0"
+__version__ = "1.1.2"
 
 APP_NAME = "MD Viewer"
 APP_SLUG = "md-viewer"

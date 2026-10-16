@@ -1,5 +1,6 @@
 """Tests fuer das Einlesen von Dateien (Kodierung, Grenzen, URLs)."""
 
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -62,6 +63,14 @@ class ReadDocumentTest(unittest.TestCase):
         with self.assertRaises(DocumentError) as ctx:
             documents.read_document(sub)
         self.assertEqual(ctx.exception.key, "error.is_dir")
+
+    @unittest.skipUnless(hasattr(os, "mkfifo"), "FIFO-Dateien gibt es nur auf Unix")
+    def test_fifo_wird_ohne_lesen_abgewiesen(self):
+        pipe = self.dir / "pipe.md"
+        os.mkfifo(pipe)
+        with self.assertRaises(DocumentError) as ctx:
+            documents.read_document(pipe)
+        self.assertEqual(ctx.exception.key, "error.not_regular")
 
     def test_zu_grosse_datei(self):
         path = self.write("gross.md", b"x" * 4096)

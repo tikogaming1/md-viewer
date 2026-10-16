@@ -9,7 +9,7 @@
 # Aufruf:  scripts/smoke-test-deb.sh [paket.deb]
 set -u
 
-DEB="${1:-$(ls -1 release/md-viewer_*_all.deb 2>/dev/null | head -1)}"
+DEB="${1:-$(find release -maxdepth 1 -type f -name 'md-viewer_*_all.deb' 2>/dev/null | sort -V | tail -1)}"
 if [ -z "$DEB" ] || [ ! -f "$DEB" ]; then
   echo "FEHLER: kein Paket gefunden (erst 'make deb' ausfuehren)" >&2
   exit 1
@@ -26,6 +26,17 @@ bad()  { printf '  \033[31m✗\033[0m %s\n' "$1"; FAILURES=$((FAILURES + 1)); }
 
 step "Paket: $DEB"
 dpkg-deb --info "$DEB" | sed -n '2,8p'
+
+step "Automatische Abhaengigkeiten"
+DEPENDS="$(dpkg-deb -f "$DEB" Depends | tr '\n' ' ')"
+for dependency in python3-gi gir1.2-gtk-3.0 gir1.2-gdkpixbuf-2.0; do
+  if [[ "$DEPENDS" == *"$dependency"* ]]; then ok "$dependency ist als Depends deklariert"; else bad "$dependency fehlt in Depends"; fi
+done
+if [[ "$DEPENDS" == *"gir1.2-webkit2-4.1"* || "$DEPENDS" == *"gir1.2-webkit2-4.0"* ]]; then
+  ok "WebKit2GTK ist als Depends deklariert"
+else
+  bad "WebKit2GTK fehlt in Depends"
+fi
 
 step "Entpacken"
 dpkg-deb -x "$DEB" "$EXTRACT" && ok "entpackt nach $EXTRACT"

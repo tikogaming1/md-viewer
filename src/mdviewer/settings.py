@@ -14,6 +14,8 @@ from . import i18n, paths
 log = logging.getLogger(__name__)
 
 MAX_RECENT_FILES = 12
+_SETTINGS_VERSION = 1
+_SETTINGS_VERSION_KEY = "_version"
 
 DEFAULTS: dict[str, Any] = {
     "language": i18n.DEFAULT_LANGUAGE,
@@ -25,7 +27,7 @@ DEFAULTS: dict[str, Any] = {
     "highlight": True,
     "math": True,
     "math_inline": True,
-    "block_remote_images": False,
+    "block_remote_images": True,
     "auto_reload": True,
     "recent_files": [],
     "window_width": 1100,
@@ -77,6 +79,7 @@ class Settings:
 
     def load(self) -> "Settings":
         self._data = dict(DEFAULTS)
+        needs_save = False
         try:
             raw = self.path.read_text(encoding="utf-8")
             stored = json.loads(raw)
@@ -89,11 +92,26 @@ class Settings:
             return self
 
         if isinstance(stored, dict):
+            stored_version_value = stored.get(_SETTINGS_VERSION_KEY, 0)
+            stored_version = (
+                stored_version_value
+                if isinstance(stored_version_value, int) and not isinstance(stored_version_value, bool)
+                else 0
+            )
             for key, value in stored.items():
                 if key in DEFAULTS:
                     self._data[key] = value
+            if stored_version < _SETTINGS_VERSION:
+                # Before versioned settings, false was the application default and
+                # was written even when the user had never changed the option.
+                # Migrate that ambiguous legacy value to the safer default once.
+                if "block_remote_images" in stored and not bool(stored["block_remote_images"]):
+                    self._data["block_remote_images"] = True
+                needs_save = True
         self._normalize()
         self._loaded = True
+        if needs_save:
+            self.save()
         return self
 
     def _normalize(self) -> None:
@@ -150,7 +168,9 @@ class Settings:
         """Atomar schreiben (temp + rename); Fehler werden nur protokolliert."""
         try:
             self.path.parent.mkdir(parents=True, exist_ok=True)
-            payload = json.dumps(self._data, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+            stored = dict(self._data)
+            stored[_SETTINGS_VERSION_KEY] = _SETTINGS_VERSION
+            payload = json.dumps(stored, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
             with tempfile.NamedTemporaryFile(
                 "w", encoding="utf-8", dir=str(self.path.parent), prefix=".settings-", suffix=".tmp", delete=False
             ) as handle:

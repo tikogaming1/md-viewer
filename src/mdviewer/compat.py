@@ -2,9 +2,9 @@
 
 Unterstuetzte Umgebungen:
 
-* WebKit2GTK 4.1 (Debian 12, Ubuntu 24.04, Fedora 38+)
-* WebKit2GTK 4.0 (Debian 11, Ubuntu 22.04)
-* WebKit2GTK 2.x  (aeltere Distributionen, ``gir1.2-webkit2-4.0``/``-3.0``)
+* WebKit2GTK API 4.1 (Debian 12, Ubuntu 24.04, Fedora 38+)
+* WebKit2GTK API 4.0 (Debian 11, Ubuntu 22.04)
+* Legacy-WebKit-API 2.0 als best-effort-Fallback, falls vorhanden
 
 Es gibt genau einen Unterschied, den wir kennen muessen: das Auswerten von
 JavaScript (``evaluate_javascript`` in 4.1, ``run_javascript`` davor).
@@ -62,10 +62,12 @@ def load_toolkit(*, require_webkit: bool = True) -> Toolkit:
     try:
         import gi
 
-        try:
-            gi.require_version("Gtk", "3.0")
-        except ValueError:
-            pass  # schon geladen (z. B. durch eine andere Version) - Import versuchen
+        # GTK3 und Gdk3 muessen gemeinsam und *vor* dem Import festgelegt
+        # werden. Auf Systemen mit GTK4 installiert kann PyGObject sonst
+        # Gdk 4.0 zuerst laden; GTK3 kann dann Gdk 3.0 nicht mehr verwenden.
+        # Versionskonflikte nicht verschlucken: sie sind ein echter Startfehler.
+        for namespace, version in (("Gtk", "3.0"), ("Gdk", "3.0"), ("GdkPixbuf", "2.0")):
+            gi.require_version(namespace, version)
         from gi.repository import Gdk, GdkPixbuf, Gio, GLib, Gtk, Pango
     except (ImportError, ValueError) as error:  # pragma: no cover - Umgebungsabhaengig
         raise MissingDependency("error.no_gtk.title", error=str(error)) from error
@@ -178,7 +180,7 @@ def _js_value_to_text(value: Any) -> str | None:
 
 
 class WebViewAdapter:
-    """Einheitliche JavaScript-Auswertung fuer 2.x/4.0/4.1."""
+    """Einheitliche JavaScript-Auswertung fuer Legacy/4.0/4.1."""
 
     def __init__(self, toolkit: Toolkit, webview: Any) -> None:
         self.toolkit = toolkit

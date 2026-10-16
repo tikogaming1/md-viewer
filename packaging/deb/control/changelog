@@ -1,16 +1,10 @@
 md-viewer (@VERSION@) unstable; urgency=medium
 
-  * Erste Veroeffentlichung von MD Viewer.
-  * Markdown wird wie auf GitHub dargestellt: Ueberschriften mit
-    Inhaltsverzeichnis, Tabellen, Aufgabenlisten, Fussnoten, Hinweis-Bloecke,
-    aufklappbares Frontmatter, Syntax-Highlighting und Mathematik (KaTeX).
-  * Menues, Startseite, Dialoge und Statusleiste auf Deutsch und Englisch.
-  * Live-Neuladen bei Aenderungen der Datei, Tabs, Drag und Drop.
-  * Suche im Dokument (Strg+F) mit Trefferzaehlung.
-  * Bilder: Grossansicht per Klick, optionale Blockade externer Bilder.
-  * Export als eigenstaendige HTML-Datei, Drucken (sofern WebKitGTK es kann).
-  * Hell- und Dunkelmodus (Systemeinstellung moeglich), stufenlose
-    Schriftgroesse, drei Zeilenbreiten.
-  * Arbeitet vollstaendig offline und ohne Telemetrie.
+  * Fix startup on systems where GTK4 is installed alongside GTK3 by explicitly
+    requiring the GTK3, Gdk3, and GdkPixbuf introspection namespaces before import.
+  * Report the same application version in the Python package, Debian package,
+    npm metadata, and rendered WebView bundle.
+  * Keep the Debian runtime dependencies on Python-GI, GTK3, and WebKit2GTK so
+    apt installs any missing dependencies automatically.
 
  -- tikogaming1 <tikogaming1@users.noreply.github.com>  Fri, 16 Oct 2026 12:00:00 +0200
