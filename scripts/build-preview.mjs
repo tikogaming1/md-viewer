@@ -82,13 +82,14 @@ async function main() {
   };
 
   let html = await fs.readFile(path.join(webDir, 'index.html'), 'utf8');
+  // Achtung: Funktion als Ersatz, sonst deutet String.replace "$$" als Escape.
   html = html.replace(
     '<title>MD Viewer</title>',
-    `<title>Vorschau · ${path.basename(markdownPath)}</title>`,
+    () => `<title>Vorschau · ${path.basename(markdownPath)}</title>`,
   );
   html = html.replace(
     '<body>',
-    `<body>
+    () => `<body>
     <div class="preview-banner">
       Statische Vorschau der Oberfläche · dieselben Dateien wie im .deb
       (<code>web/</code>) · <a href="https://github.com/tikogaming1/md-viewer">Projektseite</a>
@@ -97,7 +98,7 @@ async function main() {
   // Nutzlast vor das Bundle setzen: main.js rendert sie ohne Python-Bruecke.
   html = html.replace(
     '<script src="bundle/viewer.min.js"></script>',
-    `<script>window.MD_DEMO = ${JSON.stringify(demo)};</script>
+    () => `<script>window.MD_DEMO = ${JSON.stringify(demo).replace(/</g, '\\u003c')};</script>
     <script src="bundle/viewer.min.js"></script>
     <script>
       // Bruecken-Ersatz: Aktionen, die normalerweise Python ausfuehrt, hier sichtbar machen.

@@ -32,9 +32,10 @@ async function renderInSimulatedBrowser({ payload = DEMO_PAYLOAD, markdown, mode
   // "<" escapen: sonst beendet ein "</script>" im Markdown den eingefuegten Block.
   const literal = JSON.stringify(demo).replace(/</g, '\\u003c');
   const bootstrapping = mode === 'demo' ? `window.MD_DEMO = ${literal};` : `window.__payload = ${literal};`;
+  // Funktion als Ersatz: sonst deutet String.replace ein "$$" im Markdown als Escape.
   html = html.replace(
     '<script src="bundle/viewer.min.js"></script>',
-    `<script>
+    () => `<script>
        window.__messages = [];
        window.webkit = { messageHandlers: { app: { postMessage: (raw) => window.__messages.push(raw) } } };
        ${bootstrapping}
@@ -109,6 +110,16 @@ test('Bundle laedt und rendert das Dokument (Ende-zu-Ende)', { skip: !hasBundle 
   win.close();
 });
 
+test('Vorschaumodus (window.MD_DEMO) rendert ohne Python-Bruecke', { skip: !hasBundle }, async () => {
+  const { win, doc, messages } = await renderInSimulatedBrowser({ mode: 'demo' });
+  assert.equal(doc.querySelectorAll('#toc .toc-link').length, 4);
+  assert.match(doc.getElementById('doc').innerHTML, /<h1 id="titel-des-dokuments">/);
+  assert.equal(win.MDViewer.ready, true);
+  // im Vorschaumodus meldet sich die Seite nicht als "bereit" (kein Python da)
+  assert.equal(messages().some((m) => m.type === 'ready'), false);
+  win.close();
+});
+
 test('Bundle entfernt unsicheren Inhalt (DOMPurify aktiv)', { skip: !hasBundle }, async () => {
   const { win, doc } = await renderInSimulatedBrowser({
     markdown: `<script>window.__boese = true;</script>
@@ -180,6 +191,10 @@ test('Das Beispiel-Dokument aus docs/ rendert vollstaendig', { skip: !hasBundle 
   }
   // Fussnoten
   assert.ok(article.querySelector('.footnotes'), 'Fussnoten fehlen');
+  // Die eingefuegte Nutzlast muss unveraendert ankommen (u. a. "$$" der Anzeige-Mathematik)
+  assert.match(win.__payload.text, /\$\$[\s\S]+\$\$/, 'Nutzlast wurde beim Einsetzen beschaedigt');
+  assert.match(doc.getElementById('doc').textContent, /\\int_0\^\\infty/);
+
   // Mathematik wurde erkannt *und* von KaTeX gesetzt (laedt katex.min.js nach)
   assert.equal(messages().find((m) => m.type === 'rendered').hasMath, true);
   await new Promise((resolve) => setTimeout(resolve, 900));
