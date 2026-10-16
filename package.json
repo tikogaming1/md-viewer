@@ -13,8 +13,8 @@
     "vendor": "node scripts/vendor-assets.mjs",
     "bundle": "node scripts/build-web.mjs",
     "build": "npm run vendor && npm run bundle",
-    "test": "node --test tests/js/",
-    "test:verbose": "node --test --test-reporter=spec tests/js/",
+    "test": "node --test \"tests/js/*.test.mjs\"",
+    "test:verbose": "node --test --test-reporter=spec \"tests/js/*.test.mjs\"",
     "icons": "python3 scripts/make_icons.py",
     "preview": "node scripts/build-preview.mjs"
   },

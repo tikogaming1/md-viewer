@@ -214,11 +214,17 @@ class ViewerPage:
             if self.on_rendered:
                 self.on_rendered(message)
         elif kind == "open-external" and message.get("url"):
-            if self.on_open_external:
-                self.on_open_external(str(message["url"]))
+            url = str(message["url"])
+            # Nur sichere, explizit erlaubte Schemas nach aussen weiterreichen.
+            if url.lower().startswith(("http://", "https://", "mailto:", "tel:")):
+                if self.on_open_external:
+                    self.on_open_external(url)
         elif kind == "open-path" and message.get("url"):
-            if self.on_open_path:
-                self.on_open_path(str(message["url"]))
+            url = str(message["url"])
+            # Nur lokale Datei-URLs duerfen als Dokument geoeffnet werden.
+            if url.lower().startswith("file:"):
+                if self.on_open_path:
+                    self.on_open_path(url)
         elif kind == "copy-text" and message.get("text") is not None:
             if self.on_copy_text:
                 self.on_copy_text(str(message["text"]))

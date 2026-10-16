@@ -275,12 +275,17 @@ def print_webview(toolkit: Toolkit, webview: Any) -> bool:
 
 
 def launch_external(uri: str) -> bool:
-    """Oeffnet eine URL/Datei mit der Standardanwendung."""
+    """Oeffnet eine URL mit der Standardanwendung (nur sichere, externe Schemas)."""
     from urllib.parse import urlparse
 
     parsed = urlparse(uri)
-    if parsed.scheme and parsed.scheme not in {"http", "https", "mailto", "tel", "file", "ftp"}:
+    # Nur explizit erlaubte, externe Schemas - keine lokalen Dateien, keine
+    # unbekannten Handler, die ueber das Betriebssystem Code ausfuehren koennten.
+    if parsed.scheme.lower() not in {"http", "https", "mailto", "tel"}:
         log.warning("Nicht erlaubtes URI-Schema: %s", parsed.scheme)
+        return False
+    if not parsed.netloc and parsed.scheme in {"http", "https"}:
+        log.warning("Ungueltige URL ohne Host: %s", uri)
         return False
     try:
         from gi.repository import Gio  # type: ignore

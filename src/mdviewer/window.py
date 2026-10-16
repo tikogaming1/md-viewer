@@ -574,6 +574,9 @@ class MainWindow:
 
     def open_uri(self, uri: str) -> Tab | None:
         """Oeffnet eine file://-URL (aus Links im Dokument oder per Drag-and-Drop)."""
+        if not isinstance(uri, str) or not uri.lower().startswith("file:"):
+            log.debug("Keine lokale Datei-URL: %s", uri)
+            return None
         Gio = self.toolkit.Gio
         try:
             gfile = Gio.File.new_for_uri(uri)
@@ -582,6 +585,11 @@ class MainWindow:
             local = None
         if not local:
             log.debug("Kein lokaler Pfad fuer %s", uri)
+            return None
+        # Nur Markdown-/Textdateien duerfen ueber Links im Viewer geoeffnet werden.
+        from .documents import is_markdown
+        if not is_markdown(local):
+            log.debug("Kein Markdown/Text ueber Link: %s", local)
             return None
         return self.open_path(local, new_tab=True)
 
