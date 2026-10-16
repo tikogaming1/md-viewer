@@ -1,0 +1,34 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Build-Ausgaben (siehe Makefile: make deb)
+/release/
+*.deb
+*.deb.sha256
+*.buildinfo
+packaging/deb-stage/
+packaging/.stage/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+ruff_cache/
+.coverage
+htmlcov/
+
+# Editoren / OS
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+
+# Erzeugte Browser-Vorschau (siehe scripts/build-preview.mjs)
+/preview/
+
+# Lokale Testdateien
+/tmp/

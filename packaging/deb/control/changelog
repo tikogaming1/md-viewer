@@ -1,0 +1,16 @@
+md-viewer (@VERSION@) unstable; urgency=medium
+
+  * Erste Veroeffentlichung von MD Viewer.
+  * Markdown wird wie auf GitHub dargestellt: Ueberschriften mit
+    Inhaltsverzeichnis, Tabellen, Aufgabenlisten, Fussnoten, Hinweis-Bloecke,
+    aufklappbares Frontmatter, Syntax-Highlighting und Mathematik (KaTeX).
+  * Menues, Startseite, Dialoge und Statusleiste auf Deutsch und Englisch.
+  * Live-Neuladen bei Aenderungen der Datei, Tabs, Drag und Drop.
+  * Suche im Dokument (Strg+F) mit Trefferzaehlung.
+  * Bilder: Grossansicht per Klick, optionale Blockade externer Bilder.
+  * Export als eigenstaendige HTML-Datei, Drucken (sofern WebKitGTK es kann).
+  * Hell- und Dunkelmodus (Systemeinstellung moeglich), stufenlose
+    Schriftgroesse, drei Zeilenbreiten.
+  * Arbeitet vollstaendig offline und ohne Telemetrie.
+
+ -- tikogaming1 <tikogaming1@users.noreply.github.com>  Fri, 16 Oct 2026 12:00:00 +0200
