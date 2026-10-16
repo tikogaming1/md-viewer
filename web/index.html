@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Alles bleibt lokal: keine Skripte/Verbindungen von aussen. Der Viewer
+         aktualisiert img-src, sobald "externe Bilder blockieren" aktiv ist. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' file: data: https: http:; font-src 'self' file: data:; media-src 'self' file: data:; connect-src 'none'; form-action 'none'; base-uri 'self'"
+    />
+    <title>MD Viewer</title>
+
+    <!-- Reihenfolge ist wichtig: viewer.css (eigene Anpassungen) zuletzt.
+         Das jeweils unpassende Theme wird von viewer.js abgeschaltet. -->
+    <link rel="stylesheet" href="vendor/github-markdown-light.css" id="css-md-light" />
+    <link rel="stylesheet" href="vendor/github-markdown-dark.css" id="css-md-dark" />
+    <link rel="stylesheet" href="vendor/hljs-github.min.css" id="css-hl-light" />
+    <link rel="stylesheet" href="vendor/hljs-github-dark.min.css" id="css-hl-dark" />
+    <link rel="stylesheet" href="vendor/katex/katex.min.css" id="css-katex" />
+    <link rel="stylesheet" href="viewer.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar" id="sidebar" hidden>
+        <div class="sidebar-head">
+          <h2 class="sidebar-title" id="toc-title">Inhaltsverzeichnis</h2>
+        </div>
+        <nav class="toc" id="toc" aria-label="Inhaltsverzeichnis"></nav>
+      </aside>
+
+      <main class="content" id="content" tabindex="-1">
+        <div class="article-host">
+          <article class="markdown-body" id="doc"></article>
+          <div class="article-footer" id="article-footer"></div>
+        </div>
+      </main>
+    </div>
+
+    <div class="findbar" id="findbar" hidden>
+      <input
+        class="findbar-input"
+        id="find-input"
+        type="text"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="Suchbegriff …"
+        aria-label="Suchbegriff"
+      />
+      <span class="findbar-count" id="find-count"></span>
+      <button class="findbar-button" id="find-prev" type="button" title="Zurück (Umschalt+Enter)">↑</button>
+      <button class="findbar-button" id="find-next" type="button" title="Weitersuchen (Enter)">↓</button>
+      <button class="findbar-button" id="find-close" type="button" title="Suche schließen (Esc)">✕</button>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+    <div class="lightbox" id="lightbox" hidden>
+      <figure class="lightbox-figure">
+        <img class="lightbox-image" id="lightbox-image" alt="" />
+        <figcaption class="lightbox-caption" id="lightbox-caption"></figcaption>
+      </figure>
+    </div>
+
+    <script src="bundle/viewer.min.js"></script>
+  </body>
+</html>

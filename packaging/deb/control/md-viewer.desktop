@@ -1,0 +1,18 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=MD Viewer
+GenericName=Markdown-Betrachter
+GenericName[en]=Markdown viewer
+Comment=Markdown-Dateien fertig gerendert anzeigen
+Comment[en]=View Markdown files as rendered documents
+Exec=md-viewer %F
+TryExec=md-viewer
+Icon=md-viewer
+Terminal=false
+Categories=Utility;TextTools;Office;Viewer;GTK;
+MimeType=text/markdown;text/x-markdown;
+Keywords=markdown;md;viewer;betrachter;dokument;notizen;readme;
+Keywords[en]=markdown;md;viewer;document;notes;readme;
+StartupNotify=true
+StartupWMClass=md-viewer

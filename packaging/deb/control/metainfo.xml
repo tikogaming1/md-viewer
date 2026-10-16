@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>md-viewer.desktop</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>MD Viewer</name>
+  <summary>Markdown-Dateien fertig gerendert anzeigen</summary>
+  <summary xml:lang="en">View Markdown files as rendered documents</summary>
+  <description>
+    <p>
+      MD Viewer zeigt Markdown-Dateien so an, wie man es von GitHub kennt – nicht als
+      Quelltext, sondern als fertiges Dokument.
+    </p>
+    <p>Enthalten ist unter anderem:</p>
+    <ul>
+      <li>Überschriften mit anklickbarem Inhaltsverzeichnis</li>
+      <li>Tabellen, Aufgabenlisten, Fußnoten und Hinweis-Blöcke</li>
+      <li>Codeblöcke mit Syntax-Highlighting und Kopier-Knopf</li>
+      <li>Mathematik mit KaTeX</li>
+      <li>Live-Neuladen, wenn sich die Datei ändert</li>
+      <li>Suche im Dokument (Strg+F)</li>
+      <li>Export als eigenständige HTML-Datei und Drucken</li>
+      <li>Hell- und Dunkelmodus, stufenlose Schriftgröße</li>
+    </ul>
+    <p>
+      Die Anwendung arbeitet vollständig offline: Sie lädt keine Inhalte aus dem Netz
+      und sendet keine Daten.
+    </p>
+  </description>
+  <launchable type="desktop-id">md-viewer.desktop</launchable>
+  <url type="homepage">https://github.com/tikogaming1/md-viewer</url>
+  <url type="bugtracker">https://github.com/tikogaming1/md-viewer/issues</url>
+  <developer id="de.tikogaming">
+    <name>tikogaming1</name>
+  </developer>
+  <categories>
+    <category>Utility</category>
+    <category>TextTools</category>
+    <category>Office</category>
+    <category>Viewer</category>
+  </categories>
+  <keywords>
+    <keyword>markdown</keyword>
+    <keyword>md</keyword>
+    <keyword>viewer</keyword>
+    <keyword>dokument</keyword>
+    <keyword>notizen</keyword>
+    <keyword>readme</keyword>
+  </keywords>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="1.0.0" date="2026-10-16">
+      <description>
+        <p>Erste Veröffentlichung: Rendering wie auf GitHub, Inhaltsverzeichnis, Suche, Live-Neuladen, HTML-Export, Hell-/Dunkelmodus.</p>
+      </description>
+    </release>
+  </releases>
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+  <supports>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <control>touch</control>
+  </supports>
+</component>

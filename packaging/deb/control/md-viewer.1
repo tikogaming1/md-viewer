@@ -1,0 +1,62 @@
+.TH MD-VIEWER 1 "Oktober 2026" "MD Viewer 1.0.0" "Benutzerbefehle"
+.SH NAME
+md-viewer \- Markdown-Dateien fertig gerendert anzeigen
+.SH ÜBERSICHT
+.B md-viewer
+.RI [ Optionen ]
+.RI [ DATEI ...]
+.SH BESCHREIBUNG
+.B md-viewer
+zeigt Markdown-Dateien als fertiges Dokument an \- mit Ueberschriften,
+Tabellen, Aufgabenlisten, Syntax-Highlighting, Hinweis-Bloecken, Fussnoten
+und Mathematik. Der Quelltext wird also nicht angezeigt, sondern das
+Ergebnis.
+.PP
+Werden mehrere Dateien angegeben, oeffnet jede in einem eigenen Tab.
+Ziehen Sie Dateien in das Fenster oder oeffnen Sie sie ueber
+.B Strg+O.
+Aendert sich eine geoeffnete Datei auf der Festplatte, laedt die Anzeige
+automatisch neu.
+.SH OPTIONEN
+.TP
+.BI \-h ", " \-\-help
+Kurze Hilfe anzeigen.
+.TP
+.BI \-\-version
+Versionsnummer ausgeben und beenden.
+.TP
+.BI \-\-language " de|en"
+Sprache der Oberflaeche fuer diesen Start erzwingen.
+.TP
+.BI \-\-debug
+Ausfuehrliche Protokollausgabe (fuer die Fehlersuche).
+.TP
+.BI \-\-export-html " ZIELDATEI"
+Die angegebene Datei rendern, als eigenstaendige HTML-Datei speichern und
+beenden. Beispiel:
+.IP
+.EX
+md-viewer \-\-export-html notizen.html notizen.md
+.EE
+.SH DATEIEN
+.TP
+.I ~/.config/md-viewer/settings.json
+Einstellungen (Design, Schriftgroesse, zuletzt geoeffnete Dateien).
+.TP
+.I /usr/lib/md-viewer/web/
+Die Web-Assets, die das Rendern uebernehmen.
+.SH UMGEBUNG
+.TP
+.B MD_VIEWER_WEB_DIR
+Ersetzt den Pfad zu den Web-Assets (fuer die Entwicklung).
+.TP
+.B MD_VIEWER_CONFIG_DIR
+Ersetzt das Konfigurationsverzeichnis (fuer die Entwicklung und Tests).
+.TP
+.B MD_VIEWER_DEBUG
+Beliebiger Wert aktiviert die ausfuehrliche Protokollausgabe.
+.SH SIEHE AUCH
+Weitere Hinweise in
+.IR /usr/share/doc/md-viewer/README.md .
+.SH FEHLER MELDEN
+https://github.com/tikogaming1/md-viewer/issues

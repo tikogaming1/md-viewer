@@ -1,0 +1,29 @@
+Package: md-viewer
+Architecture: all
+Version: @VERSION@
+Installed-Size: @INSTALLED_SIZE@
+Maintainer: tikogaming1 <tikogaming1@users.noreply.github.com>
+Section: utils
+Priority: optional
+Depends: python3 (>= 3.9), python3-gi, gir1.2-gtk-3.0, gir1.2-webkit2-4.1 | gir1.2-webkit2-4.0 | gir1.2-webkit2-3.0
+Recommends: xdg-utils, fonts-dejavu-core, fonts-noto-core
+Suggests: gir1.2-webkit2-4.1
+Homepage: https://github.com/tikogaming1/md-viewer
+Description: Markdown-Dateien fertig gerendert anzeigen (Desktop-App)
+ MD Viewer zeigt Markdown-Dateien so an, wie man es von GitHub kennt -
+ nicht als Quelltext, sondern als fertiges Dokument: Ueberschriften mit
+ Inhaltsverzeichnis, Tabellen, Aufgabenlisten, Codebloecke mit
+ Syntax-Highlighting, Hinweis-Bloecke, Fussnoten und Mathematik (KaTeX).
+ .
+ Eigenschaften:
+  * Live-Neuladen: aendert sich die Datei, wird die Anzeige aktualisiert
+  * Suche im Dokument (Strg+F) mit Trefferzaehlung und Sprungmarken
+  * Bilder per Klick gross anzeigen, relative Pfade werden aufgeloest
+  * Links auf andere Markdown-Dateien oeffnen im Viewer, Web-Links im Browser
+  * Export als eigenstaendige HTML-Datei, Drucken
+  * Hell- und Dunkelmodus (folgt dem System), Schriftgroesse stufenlos
+  * komplett offline: keine Netzwerkzugriffe, keine Telemetrie
+ .
+ Die App basiert auf GTK3 und WebKit2GTK; das Rendern uebernimmt eine
+ mitgelieferte, lokal laufende Web-Oberflaeche (marked, highlight.js,
+ KaTeX, DOMPurify).
