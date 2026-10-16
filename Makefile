@@ -16,7 +16,7 @@ VERSION := $(shell sed -n 's/^__version__ = "\(.*\)"/\1/p' src/mdviewer/__init__
 PKG := md-viewer
 DEB := release/$(PKG)_$(VERSION)_all.deb
 
-.PHONY: help all deps build bundle vendor test test-python test-js icons check-install deb clean clean-all install run
+.PHONY: help all deps build bundle vendor test test-python test-js icons check-deb check-install deb clean clean-all install run
 
 help:
 	@echo "MD Viewer $(VERSION)"
@@ -26,6 +26,7 @@ help:
 	@echo "  make test            Alle Tests ausfuehren"
 	@echo "  make icons           App-Icons neu erzeugen"
 	@echo "  make deb             Debian-Paket bauen -> $(DEB)"
+	@echo "  make check-deb       Fertiges Paket pruefen (Inhalt, Start, Assets)"
 	@echo "  make run             App aus dem Quelltext starten"
 	@echo "  make clean           Baureste entfernen"
 	@echo "  make clean-all       Zusaetzlich node_modules und release/ entfernen"
@@ -57,7 +58,10 @@ test-js-src:
 icons:
 	$(PYTHON) scripts/make_icons.py
 
-check-install: $(DEB)
+check-deb: $(DEB)
+	./scripts/smoke-test-deb.sh $(DEB)
+
+check-install: check-deb
 	dpkg-deb --info $(DEB)
 	dpkg-deb --contents $(DEB) | head -40
 	@echo ""
