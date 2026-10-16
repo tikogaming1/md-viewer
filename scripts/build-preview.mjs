@@ -77,7 +77,7 @@ async function main() {
       theme: options.theme,
       zoom: options.zoom,
       tocVisible: true,
-      blockRemoteImages: false,
+      blockRemoteImages: true,
     },
   };
 

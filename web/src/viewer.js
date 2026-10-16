@@ -12,6 +12,9 @@ import { t, setLanguage } from './i18n.js';
 /** Erlaubte Attribute/Tags fuer den Sanitizer (DOMPurify). */
 const PURIFY_CONFIG = {
   USE_PROFILES: { html: true },
+  // data-* names below are reserved for viewer state; markdown must not spoof
+  // markers such as data-blocked or data-src.
+  ALLOW_DATA_ATTR: false,
   ADD_ATTR: [
     'id',
     'class',
@@ -29,16 +32,12 @@ const PURIFY_CONFIG = {
     'aria-hidden',
     'aria-label',
     'aria-describedby',
-    'data-src',
-    'data-blocked',
-    'data-lightbox',
-    'data-lang',
   ],
   ADD_DATA_URI_TAGS: ['img'],
   // Standardliste von DOMPurify + file: (relative Bildpfade in lokalen Dokumenten)
   ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|file):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
-  FORBID_TAGS: ['style', 'form', 'iframe', 'frame', 'frameset', 'object', 'embed', 'base', 'link', 'meta', 'script'],
-  FORBID_ATTR: ['ping', 'srcset', 'formaction', 'background', 'onerror', 'onload'],
+  FORBID_TAGS: ['style', 'form', 'iframe', 'frame', 'frameset', 'object', 'embed', 'video', 'audio', 'source', 'track', 'base', 'link', 'meta', 'script'],
+  FORBID_ATTR: ['ping', 'srcset', 'formaction', 'background', 'style', 'onerror', 'onload'],
   KEEP_CONTENT: true,
 };
 
@@ -76,7 +75,6 @@ const HEADING_SELECTOR = 'h1, h2, h3, h4, h5, h6';
 const LINE_WIDTHS = { normal: '1012px', wide: '1440px', full: 'none' };
 /** Kopfzeilen, die nicht ins Inhaltsverzeichnis gehoeren (Fussnoten-Label etc.) */
 const HIDDEN_HEADING = '.sr-only, .footnotes, .front-matter, .doc-empty';
-const REMOTE_URL = /^https?:\/\//i;
 const EXTERNAL_URL = /^(https?|mailto|tel):/i;
 const MARKDOWN_FILE = /\.(md|markdown|mdown|mkdn|mkd|mdwn|mdtxt|mdtext|text|txt)$/i;
 
@@ -127,7 +125,7 @@ export function createViewer(win, doc, config = {}) {
       theme: 'auto',
       zoom: 100,
       tocVisible: true,
-      blockRemoteImages: false,
+      blockRemoteImages: true,
       notices: true,
       lineWidth: 'normal',
     },
@@ -158,37 +156,36 @@ export function createViewer(win, doc, config = {}) {
     base.setAttribute('href', href);
   }
 
-  function applyContentPolicy() {
-    const meta = doc.head.querySelector('meta[http-equiv="Content-Security-Policy"]');
-    if (!meta) return;
-    const images = state.settings.blockRemoteImages
-      ? "img-src 'self' file: data:"
-      : "img-src 'self' file: data: https: http:";
-    meta.setAttribute(
-      'content',
-      [
-        "default-src 'none'",
-        "script-src 'self'",
-        "style-src 'self' 'unsafe-inline'",
-        images,
-        "font-src 'self' file: data:",
-        "media-src 'self' file: data:",
-        "connect-src 'none'",
-        "form-action 'none'",
-        "base-uri 'self'",
-      ].join('; '),
-    );
-  }
-
   function sanitize(html) {
     return purify.sanitize(html, PURIFY_CONFIG);
+  }
+
+  function resolveImageURL(src) {
+    const base = new win.URL(state.baseHref || pageUrl, pageUrl);
+    return new win.URL(src, base);
+  }
+
+  function isRemoteImage(src) {
+    try {
+      const url = resolveImageURL(src);
+      if (url.protocol === 'http:' || url.protocol === 'https:') {
+        // Same-origin paths are local assets in the browser preview; the desktop
+        // app runs from file://, whose opaque origin means all HTTP(S) is remote.
+        const pageOrigin = new win.URL(pageUrl).origin;
+        return pageOrigin === 'null' || url.origin !== pageOrigin;
+      }
+      // file://host can name a remote share (for example a UNC/NFS location).
+      return url.protocol === 'file:' && Boolean(url.hostname) && url.hostname !== 'localhost';
+    } catch {
+      return false;
+    }
   }
 
   function markBlockedImages(root) {
     if (!state.settings.blockRemoteImages) return;
     for (const img of root.querySelectorAll('img')) {
       const src = img.getAttribute('src') ?? '';
-      if (!REMOTE_URL.test(src)) continue;
+      if (!isRemoteImage(src)) continue;
       img.setAttribute('data-src', src);
       img.setAttribute('data-blocked', '1');
       img.setAttribute('src', PLACEHOLDER_IMAGE);
@@ -263,6 +260,9 @@ export function createViewer(win, doc, config = {}) {
     const template = doc.createElement('template');
     template.innerHTML = sanitize(html);
     const fragment = template.content;
+    // An image-type input can fetch an image outside the normal <img> path;
+    // task-list checkboxes remain intact.
+    for (const input of fragment.querySelectorAll('input[type="image"]')) input.remove();
     markBlockedImages(fragment);
     markImages(fragment);
     markTaskLists(fragment);
@@ -374,8 +374,6 @@ export function createViewer(win, doc, config = {}) {
     const result = renderDocument(state.markdown, state.options);
     state.render = result;
     setBaseHref(state.baseHref);
-    applyContentPolicy();
-
     const fragment = buildFragment(result.html);
     clearArticle();
     el.article.classList.toggle('is-welcome', state.kind === 'welcome');
@@ -713,9 +711,21 @@ export function createViewer(win, doc, config = {}) {
     el.lightboxImage.removeAttribute('src');
   }
 
+  function isLoadableRemoteImage(src) {
+    try {
+      const url = resolveImageURL(src);
+      if (url.protocol === 'http:' || url.protocol === 'https:') return true;
+      // file: is already permitted for local images; allow a remote share only
+      // after the same explicit per-image click that remote HTTP(S) needs.
+      return url.protocol === 'file:' && Boolean(url.hostname) && url.hostname !== 'localhost';
+    } catch {
+      return false;
+    }
+  }
+
   function unblockImage(img) {
     const src = img.getAttribute('data-src');
-    if (!src) return false;
+    if (!src || !isLoadableRemoteImage(src)) return false;
     img.setAttribute('src', src);
     img.removeAttribute('data-src');
     img.removeAttribute('data-blocked');

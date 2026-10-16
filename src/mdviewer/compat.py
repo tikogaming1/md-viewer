@@ -2,9 +2,9 @@
 
 Unterstuetzte Umgebungen:
 
-* WebKit2GTK 4.1 (Debian 12, Ubuntu 24.04, Fedora 38+)
-* WebKit2GTK 4.0 (Debian 11, Ubuntu 22.04)
-* WebKit2GTK 2.x  (aeltere Distributionen, ``gir1.2-webkit2-4.0``/``-3.0``)
+* WebKit2GTK API 4.1 (Debian 12, Ubuntu 24.04, Fedora 38+)
+* WebKit2GTK API 4.0 (Debian 11, Ubuntu 22.04)
+* Legacy-WebKit-API 2.0 als best-effort-Fallback, falls vorhanden
 
 Es gibt genau einen Unterschied, den wir kennen muessen: das Auswerten von
 JavaScript (``evaluate_javascript`` in 4.1, ``run_javascript`` davor).
@@ -180,7 +180,7 @@ def _js_value_to_text(value: Any) -> str | None:
 
 
 class WebViewAdapter:
-    """Einheitliche JavaScript-Auswertung fuer 2.x/4.0/4.1."""
+    """Einheitliche JavaScript-Auswertung fuer Legacy/4.0/4.1."""
 
     def __init__(self, toolkit: Toolkit, webview: Any) -> None:
         self.toolkit = toolkit

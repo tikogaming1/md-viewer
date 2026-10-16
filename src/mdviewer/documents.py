@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import stat
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -153,19 +154,44 @@ def read_document(path: os.PathLike[str] | str, max_bytes: int = MAX_BYTES) -> D
     if resolved.is_dir():
         raise DocumentError("error.is_dir", path=str(resolved))
 
+    # Open once and inspect that descriptor, rather than stat()-then-read_bytes().
+    # O_NONBLOCK avoids hanging while opening a FIFO; fstat rejects devices,
+    # sockets, and pipes before any content is read. The bounded read is still
+    # necessary because a regular file can grow after its initial fstat().
+    descriptor: int | None = None
+    flags = (
+        os.O_RDONLY
+        | getattr(os, "O_NONBLOCK", 0)
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NOFOLLOW", 0)
+    )
     try:
-        size = resolved.stat().st_size
+        descriptor = os.open(resolved, flags)
+        with os.fdopen(descriptor, "rb") as source:
+            descriptor = None  # fdopen now owns and closes the descriptor.
+            before = os.fstat(source.fileno())
+            if not stat.S_ISREG(before.st_mode):
+                raise DocumentError("error.not_regular", path=str(resolved))
+            if before.st_size > max_bytes:
+                raise DocumentError(
+                    "error.too_large", size=format_size(before.st_size), limit=format_size(max_bytes)
+                )
+
+            data = source.read(max_bytes + 1)
+            after = os.fstat(source.fileno())
+            size = max(len(data), after.st_size)
+            if len(data) > max_bytes or size > max_bytes:
+                raise DocumentError("error.too_large", size=format_size(size), limit=format_size(max_bytes))
+    except FileNotFoundError:
+        raise DocumentError("error.not_found", path=str(resolved)) from None
     except OSError as error:
         raise DocumentError("error.read_failed", error=str(error)) from None
-
-    if size > max_bytes:
-        raise DocumentError("error.too_large", size=format_size(size), limit=format_size(max_bytes))
-
-    try:
-        data = resolved.read_bytes()
-        stat = resolved.stat()
-    except OSError as error:
-        raise DocumentError("error.read_failed", error=str(error)) from None
+    finally:
+        if descriptor is not None:
+            try:
+                os.close(descriptor)
+            except OSError:
+                pass
 
     if looks_binary(data):
         raise DocumentError("error.binary")
@@ -183,8 +209,8 @@ def read_document(path: os.PathLike[str] | str, max_bytes: int = MAX_BYTES) -> D
         text=text.replace("\r\n", "\n").replace("\r", "\n"),
         encoding=encoding,
         assumed_encoding=assumed,
-        size=stat.st_size,
-        modified=stat.st_mtime,
+        size=size,
+        modified=after.st_mtime,
     )
 
 

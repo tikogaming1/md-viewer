@@ -2,8 +2,9 @@
 /**
  * Baut web/bundle/viewer.min.js aus web/src/*.js.
  *
- * Ergebnis ist ein einzelnes, selbst-enthaltendes IIFE-Bundle (ES2018), das ohne
- * Netzwerkzugriff im WebKit2GTK-WebView laeuft. Absichtlich *kein* "dist/"-Ordner,
+ * Ergebnis ist ein einzelnes, selbst-enthaltendes IIFE-Bundle (ES2018), das nur
+ * lokale Assets nutzt; Remote-Bilder laden erst nach ausdruecklicher Freigabe.
+ * Absichtlich *kein* "dist/"-Ordner,
  * damit nichts mit .gitignore-Regeln kollidiert.
  *
  * Aufruf:  npm run bundle

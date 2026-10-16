@@ -269,9 +269,45 @@ test('Blockierte externe Bilder werden erst nach Klick geladen', () => {
   assert.equal(images[0].getAttribute('data-blocked'), null);
 });
 
-test('externe Bilder sind ohne Blockierung erlaubt', () => {
+test('relative Bilder in der Browser-Vorschau bleiben lokal, Remote-Bilder sind blockiert', () => {
+  const { doc, viewer } = createViewerFixture({ url: 'http://preview.test/index.html' });
+  viewer.load({
+    ...DEMO_PAYLOAD,
+    baseHref: './',
+    text: '![Lokal](bilder/lokal.png)\n\n![Fern](https://example.com/remote.png)\n\n![Protokoll-relativ](//cdn.example.com/a.png)\n',
+  });
+  const images = doc.querySelectorAll('#doc img');
+  assert.equal(images.length, 3);
+  assert.equal(images[0].getAttribute('src'), 'bilder/lokal.png');
+  assert.equal(images[0].getAttribute('data-blocked'), null);
+  assert.equal(images[1].getAttribute('data-blocked'), '1');
+  assert.equal(images[2].getAttribute('data-blocked'), '1');
+});
+
+test('externe Bilder und Dateifreigaben sind standardmaessig blockiert', () => {
   const { doc, viewer } = createViewerFixture();
-  viewer.load({ ...DEMO_PAYLOAD, text: '![Fern](https://example.com/bild.png)\n' });
+  viewer.load({
+    ...DEMO_PAYLOAD,
+    text: '![Fern](https://example.com/bild.png)\n\n![Protokoll-relativ](//nas.example/share/a.png)\n\n![Dateifreigabe](file://nas.example/share/b.png)\n',
+  });
+  const images = doc.querySelectorAll('#doc img');
+  assert.equal(images.length, 3);
+  for (const img of images) {
+    assert.equal(img.getAttribute('data-blocked'), '1');
+    assert.match(img.getAttribute('src'), /^data:image\/svg\+xml/);
+  }
+  assert.equal(images[0].getAttribute('data-src'), 'https://example.com/bild.png');
+  assert.equal(images[1].getAttribute('data-src'), '//nas.example/share/a.png');
+  assert.equal(images[2].getAttribute('data-src'), 'file://nas.example/share/b.png');
+});
+
+test('externe Bilder sind nach ausdruecklichem Opt-out erlaubt', () => {
+  const { doc, viewer } = createViewerFixture();
+  viewer.load({
+    ...DEMO_PAYLOAD,
+    text: '![Fern](https://example.com/bild.png)\n',
+    settings: { blockRemoteImages: false },
+  });
   const img = doc.querySelector('#doc img');
   assert.equal(img.getAttribute('src'), 'https://example.com/bild.png');
   assert.equal(img.getAttribute('data-lightbox'), '1');
@@ -296,27 +332,43 @@ test('base-Href wird aus dem Dokumentpfad gesetzt', () => {
   assert.equal(doc.head.querySelector('base').getAttribute('href'), 'file:///home/user/docs/');
 });
 
-test('CSP wird bei blockierten Bildern verschaerft', () => {
+test('Statische CSP erlaubt nur Bild-URLs; externe Bilder bleiben bis zur Aktion blockiert', () => {
   const { doc, viewer } = createViewerFixture();
-  viewer.load({ ...DEMO_PAYLOAD, settings: { blockRemoteImages: true } });
+  viewer.load({ ...DEMO_PAYLOAD, text: '![Fern](https://example.com/bild.png)\n' });
   const meta = doc.head.querySelector('meta[http-equiv="Content-Security-Policy"]');
-  assert.match(meta.getAttribute('content'), /img-src 'self' file: data:;/);
-  viewer.applySettings({ blockRemoteImages: false });
   assert.match(meta.getAttribute('content'), /img-src 'self' file: data: https: http:/);
+  assert.match(meta.getAttribute('content'), /connect-src 'none'/);
+
+  // CSP meta policies cannot be loosened after parsing. The viewer keeps one
+  // static policy, but rewrites blocked image sources before adding DOM content.
+  const image = doc.querySelector('#doc img');
+  assert.equal(image.getAttribute('data-blocked'), '1');
+  assert.match(image.getAttribute('src'), /^data:image\/svg\+xml/);
+
+  image.dispatchEvent(new doc.defaultView.MouseEvent('click', { bubbles: true, cancelable: true }));
+  assert.equal(image.getAttribute('src'), 'https://example.com/bild.png');
+  assert.equal(image.getAttribute('data-blocked'), null);
 });
 
-test('Sicherheit: Skripte, Event-Handler und javascript:-Links sind entfernt', () => {
+test('Sicherheit: aktiver Inhalt und Viewer-interne Marker werden entfernt', () => {
   const { doc, viewer } = createViewerFixture();
   viewer.load({
     ...DEMO_PAYLOAD,
-    text: '<script>alert(1)</script>\n\n<img src="x.png" onerror="alert(2)">\n\n[Klick](javascript:alert(3))\n\n<iframe src="https://example.com"></iframe>\n',
+    text: '<script>alert(1)</script>\n\n<img src="x.png" onerror="alert(2)">\n\n<img src="local.png" data-src="https://evil.example/private.png" data-blocked="1">\n\n<div style="background-image:url(https://evil.example/x)">stil</div>\n\n<input type="image" src="https://evil.example/input.png">\n\n<video poster="https://evil.example/poster.png"></video>\n\n[Klick](javascript:alert(3))\n\n<iframe src="https://example.com"></iframe>\n',
   });
   const html = doc.getElementById('doc').innerHTML;
   assert.doesNotMatch(html, /<script/i);
   assert.doesNotMatch(html, /alert\(1\)/);
   assert.doesNotMatch(html, /onerror/i);
+  assert.doesNotMatch(html, /style=/i);
   assert.doesNotMatch(html, /javascript:/i);
   assert.doesNotMatch(html, /<iframe/i);
+  assert.doesNotMatch(html, /<video/i);
+  assert.doesNotMatch(html, /type="image"/i);
+  const localImage = doc.querySelector('img[src="local.png"]');
+  assert.ok(localImage);
+  assert.equal(localImage.getAttribute('data-src'), null);
+  assert.notEqual(localImage.getAttribute('data-blocked'), '1');
 });
 
 test('Einstellungen mit Rendereinfluss loesen ein Neu-Rendern aus', () => {

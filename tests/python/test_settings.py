@@ -21,7 +21,23 @@ class SettingsTest(unittest.TestCase):
         self.assertEqual(self.settings.get("theme"), "auto")
         self.assertEqual(self.settings.get("zoom"), 100)
         self.assertTrue(self.settings.get("toc_visible"))
+        self.assertTrue(self.settings.get("block_remote_images"))
         self.assertEqual(self.settings.get("recent_files"), [])
+
+    def test_legacy_false_fuer_remote_bilder_wird_einmalig_migriert(self):
+        self.path.write_text(
+            json.dumps({"theme": "dark", "block_remote_images": False}), encoding="utf-8"
+        )
+
+        migrated = Settings(self.path).load()
+        self.assertTrue(migrated.get("block_remote_images"))
+        stored = json.loads(self.path.read_text(encoding="utf-8"))
+        self.assertEqual(stored["_version"], 1)
+
+        # Nach der einmaligen Migration kann der Nutzer die Einstellung wieder
+        # bewusst deaktivieren; ein weiterer Start respektiert diese Auswahl.
+        migrated.set("block_remote_images", False)
+        self.assertFalse(Settings(self.path).load().get("block_remote_images"))
 
     def test_setzen_und_lesen(self):
         self.settings.set("zoom", 140)

@@ -9,7 +9,6 @@
 Eine schlanke Desktop-App für Debian und Ubuntu, verteilt als installierbares
 `.deb`-Paket. Die Darstellung entspricht dem, was man von GitHub kennt.
 
-[![CI](https://github.com/tikogaming1/md-viewer/actions/workflows/ci.yml/badge.svg)](https://github.com/tikogaming1/md-viewer/actions/workflows/ci.yml)
 [![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-blue.svg)](LICENSE)
 [![Paket: .deb](https://img.shields.io/badge/Paket-.deb-A81D33.svg)](#installation)
 
@@ -26,13 +25,13 @@ Eine schlanke Desktop-App für Debian und Ubuntu, verteilt als installierbares
 | **Mathematik** | Formeln mit KaTeX (inline `$x^2$` und als Block `$$ … $$`) |
 | **Inhaltsverzeichnis** | Seitenleiste mit allen Überschriften; der aktuelle Abschnitt wird beim Scrollen hervorgehoben |
 | **Suche** | `Strg+F`, Treffer werden gezählt und hervorgehoben, `Enter`/`Umschalt+Enter` springt weiter |
-| **Bilder** | Klick für die Großansicht; relative Pfade werden aus dem Ordner der Datei geladen; externe Bilder optional blockiert |
+| **Bilder** | Klick für die Großansicht; relative Pfade werden aus dem Ordner der Datei geladen; externe Bilder standardmäßig blockiert und nur auf bewussten Klick geladen |
 | **Links** | Relative Links auf andere `.md`-Dateien öffnen im Viewer, Web-Links im Standardbrowser |
 | **Tabs** | Mehrere Dokumente gleichzeitig, per Drag und Drop oder `Strg+Umschalt+O` |
 | **Live-Neuladen** | Wird die Datei auf der Festplatte geändert, aktualisiert sich die Anzeige |
-| **Export** | „Als HTML exportieren“ schreibt eine eigenständige Datei (Styles und Schriften eingebettet); Drucken, wenn WebKitGTK es unterstützt |
+| **Export** | „Als HTML exportieren“ schreibt eine eigenständige Datei (Styles und Schriften eingebettet, Bilder bleiben verlinkt); Drucken, wenn WebKitGTK es unterstützt |
 | **Lesekomfort** | Hell- und Dunkelmodus (auch automatisch nach Systemeinstellung), Schriftgröße 50–250 %, drei Zeilenbreiten |
-| **Offline** | Keine Netzwerkzugriffe, keine Telemetrie, keine Cloud – alles läuft lokal |
+| **Datenschutz** | Alle Bibliotheken liegen lokal; keine Telemetrie; externe Bilder sind standardmäßig gesperrt, Web-Links öffnen sich erst nach Klick im Browser |
 
 ## Installation
 
@@ -46,9 +45,13 @@ bereits vorhanden – so war es auch bei der Installation auf Kali.
 
 ### Aus dem Release installieren
 
+Das Debian-Paket liegt in [GitHub Releases](https://github.com/tikogaming1/md-viewer/releases/tag/v1.1.2)
+und kann auch direkt aus dem Release-Tag heruntergeladen werden:
+
 ```bash
-# .deb-Datei von der Release-Seite herunterladen, dann:
-sudo apt install ./md-viewer_1.1.1_all.deb
+wget -O md-viewer_1.1.2_all.deb \
+  https://raw.githubusercontent.com/tikogaming1/md-viewer/v1.1.2/release/md-viewer_1.1.2_all.deb
+sudo apt install ./md-viewer_1.1.2_all.deb
 ```
 
 `apt` löst dabei die Abhängigkeiten auf. Danach erscheint **MD Viewer** im
@@ -62,8 +65,8 @@ git clone https://github.com/tikogaming1/md-viewer.git
 cd md-viewer
 make deps      # Node.js-Abhängigkeiten (npm install)
 make test      # Tests (Python + JavaScript)
-make deb       # Paket bauen -> release/md-viewer_1.1.1_all.deb
-sudo apt install ./release/md-viewer_1.1.1_all.deb
+make deb       # Paket bauen -> release/md-viewer_1.1.2_all.deb
+sudo apt install ./release/md-viewer_1.1.2_all.deb
 ```
 
 Zum Ausprobieren ohne Installation: `make run` (startet aus dem Checkout).
@@ -145,14 +148,16 @@ Beenden geschrieben). Die wichtigsten Werte:
 | `line_width` | `normal`, `wide`, `full` | Zeilenbreite des Textes |
 | `toc_visible` | `true`, `false` | Inhaltsverzeichnis einblenden |
 | `auto_reload` | `true`, `false` | Bei Dateiänderungen neu laden |
-| `block_remote_images` | `true`, `false` | Bilder von fremden Servern erst nach Klick laden |
+| `block_remote_images` | `true` (Standard), `false` | Remote-Bilder nur nach Klick laden (`true`) oder automatisch erlauben (`false`) |
 | `breaks` | `true`, `false` | Einzelne Zeilenumbrüche als Zeilenumbruch darstellen |
 | `math`, `math_inline` | `true`, `false` | Mathematik mit KaTeX setzen |
 | `language` | `de`, `en` | Sprache der Oberfläche |
 | `recent_files` | Liste | Die zwölf zuletzt geöffneten Dateien |
 
 Unbekannte oder unplausible Werte werden beim Laden automatisch korrigiert – eine kaputte
-Datei kann die App nicht lahmlegen.
+Datei kann die App nicht lahmlegen. Beim ersten Start von 1.1.2 werden alte, nicht versionierte
+Einstellungen einmalig auf den sicheren Bild-Standard migriert; eine gespeicherte Freigabe
+lässt sich danach jederzeit im Menü wieder wählen.
 
 ## Wie es aufgebaut ist
 
@@ -161,7 +166,7 @@ src/mdviewer/            Python: Fenster, Dateien, Einstellungen, Export
   app.py                 Gtk.Application, Kommandozeile, Startfehler
   window.py              Hauptfenster: Kopfzeile, Tabs, Menü, Status, Live-Neuladen
   viewer_page.py         ein WebView je Tab, Nachrichtenkanal nach JavaScript
-  compat.py              GTK3/WebKit2GTK 2.x, 4.0 und 4.1 (API-Unterschiede)
+  compat.py              GTK3/WebKit2GTK API 4.0 und 4.1 (mit Legacy-Fallback)
   documents.py           Dateien einlesen (Kodierung, Grenzen, URLs)
   exporter.py            eigenständige HTML-Datei erzeugen
   settings.py, i18n.py, paths.py, welcome.py
@@ -187,10 +192,12 @@ Rendern übernimmt eine lokale Web-Oberfläche – dieselbe Technik, die auch Gi
 für die Markdown-Darstellung verwendet, weshalb die Darstellung praktisch identisch ist.
 
 **Sicherheit:** Das WebView darf nur die mitgelieferte Seite laden (jede andere Navigation
-wird blockiert), die Seite darf keine Netzwerkverbindungen aufbauen (CSP: `connect-src
-'none'`), und gerendertes Markdown wird mit DOMPurify bereinigt – Skripte, Event-Handler
-und `javascript:`-Links werden entfernt. Popups sind unterbunden; Links ins Netz öffnet
-die App im Standardbrowser.
+wird blockiert). Die Content Security Policy sperrt aktive Verbindungen (`connect-src 'none'`)
+und Remote-Ressourcen außer Bildern. CSP-Meta-Regeln sind nach dem Parsen unveränderlich;
+daher ersetzt der Viewer externe Bildquellen standardmäßig durch Platzhalter, bevor Inhalt
+ins DOM kommt. Erst ein Bildklick oder eine globale Freigabe setzt eine externe Bild-URL.
+DOMPurify entfernt Skripte, Event-Handler, `javascript:`-Links, Styles und aktive Medieninhalte.
+Popups sind unterbunden; Web-Links öffnen sich erst nach Klick im Standardbrowser.
 
 ### Mitgelieferte Fremdbibliotheken
 

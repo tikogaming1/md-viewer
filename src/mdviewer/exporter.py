@@ -1,7 +1,7 @@
 """Export: aus dem gerenderten HTML eine eigenstaendige HTML-Datei bauen.
 
-Die Datei enthaelt alle Stylesheets (GitHub-Markdown, highlight.js, KaTeX inklusive
-eingebetteter Schriften) und ist damit offline und ohne Zusatzdateien benutzbar.
+Stylesheets und KaTeX-Schriften werden eingebettet; das Layout braucht daher keine
+externen CSS-/Font-Dateien. Bilder bleiben als lokale oder externe Verweise erhalten.
 """
 
 from __future__ import annotations

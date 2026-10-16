@@ -32,7 +32,7 @@ DEPENDS="$(dpkg-deb -f "$DEB" Depends | tr '\n' ' ')"
 for dependency in python3-gi gir1.2-gtk-3.0 gir1.2-gdkpixbuf-2.0; do
   if [[ "$DEPENDS" == *"$dependency"* ]]; then ok "$dependency ist als Depends deklariert"; else bad "$dependency fehlt in Depends"; fi
 done
-if [[ "$DEPENDS" == *"gir1.2-webkit2-4.1"* || "$DEPENDS" == *"gir1.2-webkit2-4.0"* || "$DEPENDS" == *"gir1.2-webkit2-3.0"* ]]; then
+if [[ "$DEPENDS" == *"gir1.2-webkit2-4.1"* || "$DEPENDS" == *"gir1.2-webkit2-4.0"* ]]; then
   ok "WebKit2GTK ist als Depends deklariert"
 else
   bad "WebKit2GTK fehlt in Depends"

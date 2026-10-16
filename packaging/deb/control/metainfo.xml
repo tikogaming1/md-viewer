@@ -23,8 +23,10 @@
       <li>Hell- und Dunkelmodus, stufenlose Schriftgröße</li>
     </ul>
     <p>
-      Die Anwendung arbeitet vollständig offline: Sie lädt keine Inhalte aus dem Netz
-      und sendet keine Daten.
+      Die Anwendung verwendet lokal mitgelieferte Bibliotheken und sendet keine Daten.
+      Externe Bilder sind standardmäßig blockiert; ein einzelnes Bild kann bewusst per Klick
+      geladen oder die Blockierung in den Einstellungen aufgehoben werden. Web-Links werden
+      erst nach einem Klick im Standardbrowser geöffnet.
     </p>
   </description>
   <launchable type="desktop-id">md-viewer.desktop</launchable>
@@ -49,6 +51,11 @@
   </keywords>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="1.1.2" date="2026-10-16">
+      <description>
+        <p>Externe Bilder werden standardmäßig blockiert; Datei-Lesegrenzen gelten jetzt auch für FIFO- und Geräte-Dateien. Einstellungen aus älteren Versionen werden sicher migriert.</p>
+      </description>
+    </release>
     <release version="1.1.1" date="2026-10-16">
       <description>
         <p>Fehlerbehebung für Systeme mit GTK4: GTK3 und Gdk3 werden nun ausdrücklich vor dem Start ausgewählt. Die WebView zeigt außerdem die korrekte Paketversion an.</p>

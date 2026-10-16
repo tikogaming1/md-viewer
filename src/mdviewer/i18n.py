@@ -93,7 +93,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "notice.large": "Große Datei ({size}). Das Rendern kann einen Moment dauern.",
         "notice.changed": "Die Datei wurde auf der Festplatte geändert und neu geladen.",
         "notice.missing": "Die Datei ist nicht mehr vorhanden (gelöscht oder verschoben?).",
-        "notice.remote_images": "Externe Bilder sind blockiert – zum Laden auf das Bild klicken.",
+        "notice.remote_images": "Externe Bilder sind standardmäßig blockiert – zum Laden auf das Bild klicken.",
         "notice.scroll_reset": "Inhalt wurde neu aufgebaut, die Scrollposition bleibt erhalten.",
 
         # Fehler
@@ -101,6 +101,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "error.read_failed": "Die Datei konnte nicht gelesen werden:\n{error}",
         "error.not_found": "Die Datei wurde nicht gefunden:\n{path}",
         "error.is_dir": "Dies ist ein Verzeichnis, keine Datei:\n{path}",
+        "error.not_regular": "Dies ist keine reguläre Datei und kann nicht geöffnet werden:\n{path}",
         "error.too_large": "Die Datei ist zu groß ({size}). Maximal werden {limit} unterstützt.",
         "error.binary": "Die Datei scheint eine Binärdatei zu sein und kann nicht als Markdown angezeigt werden.",
         "error.no_webkit.title": "WebKitGTK fehlt",
@@ -116,7 +117,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "shortcuts.close": "Schließen",
         "about.website": "Projektseite",
         "about.license": "MIT-Lizenz",
-        "about.comments": "Ein schlanker Markdown-Betrachter für den Desktop.\n\nMarkdown wird wie auf GitHub dargestellt: Tabellen, Task-Listen, Fußnoten, Hinweis-Blöcke, Syntax-Highlighting und Mathematik (KaTeX). Alles läuft offline und ohne Netzwerkzugriff.",
+        "about.comments": "Ein schlanker Markdown-Betrachter für den Desktop.\n\nMarkdown wird wie auf GitHub dargestellt: Tabellen, Task-Listen, Fußnoten, Hinweis-Blöcke, Syntax-Highlighting und Mathematik (KaTeX). Alle Bibliotheken liegen lokal; externe Bilder sind standardmäßig blockiert und werden nur auf bewussten Klick geladen. Es gibt keine Telemetrie.",
 
         # Fusszeile der Startseite / Dokumentstatistik
         "footer": "{file} · {words} Wörter · {characters} Zeichen · ca. {minutes} Min. Lesezeit",
@@ -128,7 +129,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "welcome.features": "Was angezeigt wird",
         "welcome.feature_list": "- Überschriften mit Inhaltsverzeichnis in der Seitenleiste\n- Tabellen, Aufgabenlisten und Durchstreichen (GFM)\n- Codeblöcke mit Syntax-Highlighting und Kopier-Knopf\n- Hinweis-Blöcke wie `> [!NOTE]`, Fußnoten, aufklappbare Bereiche\n- Mathematik mit KaTeX ($x^2$, $$\\int_0^1 x\\,dx$$)\n- Frontmatter-Block (YAML/TOML) aufklappbar am Dokumentanfang",
         "welcome.hints": "Praktisch beim Lesen",
-        "welcome.hint_list": "- **Live-Neuladen:** ändert sich die Datei auf der Festplatte, aktualisiert der Viewer sie automatisch\n- **Suchen:** Strg+F, Enter springt zum nächsten Treffer\n- **Bilder:** anklicken für die Großansicht; relative Bildpfade werden aus dem Ordner der Datei geladen\n- **Links:** relative Links auf andere `.md`-Dateien öffnen diese im Viewer, Web-Links gehen an den Standardbrowser\n- **Kopieren:** Codeblöcke und Überschriften-Links landen per Klick in der Zwischenablage",
+        "welcome.hint_list": "- **Live-Neuladen:** ändert sich die Datei auf der Festplatte, aktualisiert der Viewer sie automatisch\n- **Suchen:** Strg+F, Enter springt zum nächsten Treffer\n- **Bilder:** anklicken für die Großansicht; relative Bildpfade werden aus dem Ordner der Datei geladen; externe Bilder sind standardmäßig blockiert und laden erst nach Klick\n- **Links:** relative Links auf andere `.md`-Dateien öffnen diese im Viewer, Web-Links gehen an den Standardbrowser\n- **Kopieren:** Codeblöcke und Überschriften-Links landen per Klick in der Zwischenablage",
         "welcome.shortcuts": "Tastenkürzel",
         "welcome.footer_note": "Viel Vergnügen beim Lesen!",
         "welcome.lang_hint": "Die Sprache lässt sich im Menü unter „Hilfe → Sprache“ umstellen.",
@@ -230,13 +231,14 @@ STRINGS: dict[str, dict[str, str]] = {
         "notice.large": "Large file ({size}). Rendering may take a moment.",
         "notice.changed": "The file changed on disk and was reloaded.",
         "notice.missing": "The file is gone (deleted or moved?).",
-        "notice.remote_images": "Remote images are blocked – click an image to load it.",
+        "notice.remote_images": "Remote images are blocked by default – click an image to load it.",
         "notice.scroll_reset": "Content was rebuilt, the scroll position is kept.",
 
         "error.title": "Error",
         "error.read_failed": "The file could not be read:\n{error}",
         "error.not_found": "The file was not found:\n{path}",
         "error.is_dir": "This is a directory, not a file:\n{path}",
+        "error.not_regular": "This is not a regular file and cannot be opened:\n{path}",
         "error.too_large": "The file is too large ({size}). The limit is {limit}.",
         "error.binary": "The file looks like a binary file and cannot be shown as Markdown.",
         "error.no_webkit.title": "WebKitGTK is missing",
@@ -251,7 +253,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "shortcuts.close": "Close",
         "about.website": "Project page",
         "about.license": "MIT licence",
-        "about.comments": "A slim Markdown viewer for the desktop.\n\nMarkdown is rendered the way GitHub shows it: tables, task lists, footnotes, alert blocks, syntax highlighting and math (KaTeX). Everything runs offline without network access.",
+        "about.comments": "A slim Markdown viewer for the desktop.\n\nMarkdown is rendered the way GitHub shows it: tables, task lists, footnotes, alert blocks, syntax highlighting and math (KaTeX). All libraries are local; remote images are blocked by default and load only after an explicit click. No telemetry is sent.",
 
         "footer": "{file} · {words} words · {characters} characters · ~{minutes} min read",
         "footer.welcome": "MD Viewer {version} · press {shortcuts} to see all shortcuts",
@@ -261,7 +263,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "welcome.features": "What is rendered",
         "welcome.feature_list": "- Headings with a table of contents in the sidebar\n- Tables, task lists and strikethrough (GFM)\n- Code blocks with syntax highlighting and a copy button\n- Alert blocks like `> [!NOTE]`, footnotes, collapsible sections\n- Math with KaTeX ($x^2$, $$\\int_0^1 x\\,dx$$)\n- Frontmatter block (YAML/TOML) collapsible at the top of the document",
         "welcome.hints": "Handy while reading",
-        "welcome.hint_list": "- **Live reload:** when the file changes on disk the viewer updates itself\n- **Search:** Ctrl+F, Enter jumps to the next match\n- **Images:** click for a large view; relative image paths are loaded from the file's folder\n- **Links:** relative links to other `.md` files open in the viewer, web links go to your browser\n- **Copy:** code blocks and heading links go to the clipboard with one click",
+        "welcome.hint_list": "- **Live reload:** when the file changes on disk the viewer updates itself\n- **Search:** Ctrl+F, Enter jumps to the next match\n- **Images:** click for a large view; relative image paths are loaded from the file's folder; remote images are blocked by default and load only after a click\n- **Links:** relative links to other `.md` files open in the viewer, web links go to your browser\n- **Copy:** code blocks and heading links go to the clipboard with one click",
         "welcome.shortcuts": "Keyboard shortcuts",
         "welcome.footer_note": "Happy reading!",
         "welcome.lang_hint": "The language can be changed in the menu under “Help → Language”.",
