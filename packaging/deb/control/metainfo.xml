@@ -49,6 +49,16 @@
   </keywords>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="1.1.1" date="2026-10-16">
+      <description>
+        <p>Fehlerbehebung für Systeme mit GTK4: GTK3 und Gdk3 werden nun ausdrücklich vor dem Start ausgewählt. Die WebView zeigt außerdem die korrekte Paketversion an.</p>
+      </description>
+    </release>
+    <release version="1.1.0" date="2026-10-16">
+      <description>
+        <p>Sicherheitsverbesserungen für Dokument-Links und externe URI-Handler sowie ein robusteres JavaScript-Testskript.</p>
+      </description>
+    </release>
     <release version="1.0.0" date="2026-10-16">
       <description>
         <p>Erste Veröffentlichung: Rendering wie auf GitHub, Inhaltsverzeichnis, Suche, Live-Neuladen, HTML-Export, Hell-/Dunkelmodus.</p>

@@ -4,6 +4,30 @@ Alle nennenswerten Änderungen an MD Viewer. Format angelehnt an
 [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionen folgen
 [semantischer Versionierung](https://semver.org/lang/de/).
 
+## [1.1.1] – 2026-10-16
+
+### Behoben
+
+- GTK3, Gdk3 und GdkPixbuf 2.0 werden vor dem GI-Import explizit angefordert.
+  Damit startet MD Viewer auch auf Systemen mit installiertem GTK4, ohne dass
+  versehentlich Gdk 4.0 mit GTK3 kollidiert.
+- Die Versionsnummer im WebView-Bundle wird jetzt aus den Projekt-Metadaten
+  erzeugt und bleibt mit Python-Paket und .deb synchron.
+- Die Paketprüfung kontrolliert, dass GTK3, WebKit2GTK und Python-GI als
+  installierbare Debian-Abhängigkeiten deklariert sind.
+
+## [1.1.0] – 2026-10-16
+
+### Sicherheit
+
+- Eingehende Dokument-URLs und externe URI-Schemas werden geprüft; externe
+  Handler sind auf http, https, mailto und tel begrenzt.
+- `open_uri` akzeptiert nur lokale Markdown- und Textdateien.
+
+### Build und Tests
+
+- Das npm-Testskript verwendet ein Node.js-kompatibles Testdatei-Glob.
+
 ## [1.0.0] – 2026-10-16
 
 Erste Veröffentlichung.
@@ -54,4 +78,6 @@ Erste Veröffentlichung.
 - Die Seite kann keine Netzwerkverbindungen aufbauen (`connect-src 'none'`)
 - Komplett offline, keine Telemetrie; Schriften und Bibliotheken liegen lokal bei
 
+[1.1.1]: https://github.com/tikogaming1/md-viewer/releases/tag/v1.1.1
+[1.1.0]: https://github.com/tikogaming1/md-viewer/releases/tag/v1.1.0
 [1.0.0]: https://github.com/tikogaming1/md-viewer/releases/tag/v1.0.0

@@ -39,14 +39,16 @@ Eine schlanke Desktop-App für Debian und Ubuntu, verteilt als installierbares
 ### Voraussetzungen
 
 Debian 12 (Bookworm) oder neuer, Ubuntu 22.04 oder neuer – mit grafischer Sitzung (X11 oder Wayland).
-Die App benötigt `python3-gi`, `gir1.2-gtk-3.0` und WebKit2GTK; die Installation holt das bei Bedarf
-automatisch nach.
+Die App benötigt `python3-gi`, `gir1.2-gtk-3.0`, `gir1.2-gdkpixbuf-2.0` und WebKit2GTK.
+Diese Abhängigkeiten sind im `.deb` deklariert und werden von `apt` bei Bedarf automatisch installiert.
+Wenn `apt` beim Installieren nur `md-viewer` aufführt, sind die Abhängigkeiten
+bereits vorhanden – so war es auch bei der Installation auf Kali.
 
 ### Aus dem Release installieren
 
 ```bash
 # .deb-Datei von der Release-Seite herunterladen, dann:
-sudo apt install ./md-viewer_1.0.0_all.deb
+sudo apt install ./md-viewer_1.1.1_all.deb
 ```
 
 `apt` löst dabei die Abhängigkeiten auf. Danach erscheint **MD Viewer** im
@@ -60,8 +62,8 @@ git clone https://github.com/tikogaming1/md-viewer.git
 cd md-viewer
 make deps      # Node.js-Abhängigkeiten (npm install)
 make test      # Tests (Python + JavaScript)
-make deb       # Paket bauen -> release/md-viewer_1.0.0_all.deb
-sudo apt install ./release/md-viewer_1.0.0_all.deb
+make deb       # Paket bauen -> release/md-viewer_1.1.1_all.deb
+sudo apt install ./release/md-viewer_1.1.1_all.deb
 ```
 
 Zum Ausprobieren ohne Installation: `make run` (startet aus dem Checkout).
@@ -224,6 +226,7 @@ Paket steckt. Die Python-Tests prüfen Dateien und Kodierung, Einstellungen, Exp
 | Problem | Lösung |
 | --- | --- |
 | „WebKitGTK fehlt“ | `sudo apt install gir1.2-webkit2-4.1` (bzw. `-webkit2-4.0` unter Debian 11/Ubuntu 22.04) |
+| Gdk-Fehler mit „version '3.0', but '4.0' is already loaded“ | Ab MD Viewer 1.1.1 wird GTK3/Gdk3 explizit ausgewählt. Installieren Sie das aktuelle Paket; der Konflikt mit zusätzlich installiertem GTK4 wird damit vermieden. |
 | Fenster öffnet, Inhalt bleibt leer | Im Terminal `md-viewer --debug datei.md` starten; Hinweise erscheinen auf `stderr` |
 | Umlaute falsch | Die Statusleiste zeigt die erkannte Kodierung; speichern Sie die Datei als UTF-8 |
 | Kein Drucken | Erst ab WebKitGTK 2.40 möglich – ersatzweise „Als HTML exportieren“ und im Browser drucken |

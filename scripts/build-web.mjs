@@ -18,6 +18,18 @@ const outfile = path.join(root, 'web', 'bundle', 'viewer.min.js');
 
 await fs.mkdir(path.dirname(outfile), { recursive: true });
 
+// Python-Paketversion ist die Quelle der Wahrheit fuer das Debian-Paket.
+// Der npm-Metadatenstand muss dazu passen, damit UI/API und .deb dieselbe
+// Version ausweisen.
+const packageJson = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
+const appSource = await fs.readFile(path.join(root, 'src', 'mdviewer', '__init__.py'), 'utf8');
+const versionMatch = appSource.match(/^__version__\s*=\s*"([^"]+)"/m);
+if (!versionMatch) throw new Error('MD Viewer-Version fehlt in src/mdviewer/__init__.py');
+const appVersion = versionMatch[1];
+if (packageJson.version !== appVersion) {
+  throw new Error(`Versionskonflikt: package.json ${packageJson.version} != MD Viewer ${appVersion}`);
+}
+
 const result = await build({
   entryPoints: [path.join(root, 'web', 'src', 'main.js')],
   outfile,
@@ -34,6 +46,7 @@ const result = await build({
   logLevel: 'info',
   define: {
     'process.env.NODE_ENV': '"production"',
+    '__MD_VIEWER_VERSION__': JSON.stringify(appVersion),
   },
 });
 

@@ -19,6 +19,9 @@ import { repoRoot, readWebFile, DEMO_PAYLOAD } from './helpers.mjs';
 const bundlePath = path.join(repoRoot, 'web', 'bundle', 'viewer.min.js');
 const hasBundle = existsSync(bundlePath);
 const indexUrl = `file://${path.join(repoRoot, 'web', 'index.html')}`;
+const appSource = readFileSync(path.join(repoRoot, 'src', 'mdviewer', '__init__.py'), 'utf8');
+const appVersion = appSource.match(/^__version__\s*=\s*"([^"]+)"/m)?.[1];
+assert.ok(appVersion, 'MD Viewer-Version fehlt in src/mdviewer/__init__.py');
 
 /**
  * Startet index.html mit dem echten Bundle und zeichnet alle Brueckennachrichten auf.
@@ -78,6 +81,7 @@ test('Bundle laedt und rendert das Dokument (Ende-zu-Ende)', { skip: !hasBundle 
   // Skript ist geladen und die Schnittstelle vorhanden
   assert.equal(typeof win.MDViewer, 'object');
   assert.equal(win.MDViewer.ready, true);
+  assert.equal(win.MDViewer.version, appVersion);
   assert.equal(win.MDViewer.bridgeAvailable, true);
   assert.equal(errors.length, 0, `Fehler im Browserlauf: ${errors.map(String).join(' | ')}`);
 

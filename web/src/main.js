@@ -46,7 +46,8 @@ function parse(value) {
 
 /** Von Python aufgerufene Schnittstelle. */
 window.MDViewer = {
-  version: '1.0.0',
+  // Der Build setzt die Version zentral aus den Projekt-Metadaten ein.
+  version: __MD_VIEWER_VERSION__,
   ready: false,
   bridgeAvailable: bridge.available,
 

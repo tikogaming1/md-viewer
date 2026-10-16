@@ -95,7 +95,7 @@ if __name__ == "__main__":
 ```bash
 # Paket bauen und installieren
 make deb
-sudo apt install ./release/md-viewer_1.0.0_all.deb
+sudo apt install ./release/md-viewer_1.1.1_all.deb
 md-viewer ~/Notizen/README.md
 ```
 

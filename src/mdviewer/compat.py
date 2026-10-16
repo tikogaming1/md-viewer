@@ -62,10 +62,12 @@ def load_toolkit(*, require_webkit: bool = True) -> Toolkit:
     try:
         import gi
 
-        try:
-            gi.require_version("Gtk", "3.0")
-        except ValueError:
-            pass  # schon geladen (z. B. durch eine andere Version) - Import versuchen
+        # GTK3 und Gdk3 muessen gemeinsam und *vor* dem Import festgelegt
+        # werden. Auf Systemen mit GTK4 installiert kann PyGObject sonst
+        # Gdk 4.0 zuerst laden; GTK3 kann dann Gdk 3.0 nicht mehr verwenden.
+        # Versionskonflikte nicht verschlucken: sie sind ein echter Startfehler.
+        for namespace, version in (("Gtk", "3.0"), ("Gdk", "3.0"), ("GdkPixbuf", "2.0")):
+            gi.require_version(namespace, version)
         from gi.repository import Gdk, GdkPixbuf, Gio, GLib, Gtk, Pango
     except (ImportError, ValueError) as error:  # pragma: no cover - Umgebungsabhaengig
         raise MissingDependency("error.no_gtk.title", error=str(error)) from error
